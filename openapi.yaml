@@ -1,0 +1,446 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /adminapi/hotel:
+    put:
+      tags:
+      - ホテル管理
+      summary: ホテル情報更新API
+      description: ホテル情報をホテルテーブルに更新する。
+      operationId: updateHotel
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HotelUpdateRequestDto'
+        required: true
+      responses:
+        "200":
+          description: 正常
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HotelUpdateResponseDto'
+        "400":
+          description: 不正なリクエスト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorDto'
+        "404":
+          description: APIが見つからない
+        "500":
+          description: 内部サーバーエラー
+components:
+  schemas:
+    HotelUpdateRequestDto:
+      required:
+      - accessInformation
+      - address
+      - addressEn
+      - ageRequirement
+      - breakfast
+      - checkInTime
+      - checkOutTime
+      - cityCode
+      - contact
+      - contact2
+      - contactDescription
+      - courseCode
+      - courseCode2
+      - courseCode3
+      - courseCode4
+      - currency
+      - depositGuide
+      - display
+      - displayOrder
+      - email
+      - faxNumber
+      - grade
+      - hotelCaption
+      - hotelChain
+      - hotelCode
+      - hotelId
+      - hotelName
+      - hotelNameEn
+      - hotelOverview
+      - latitude
+      - linkUrl
+      - listEquipmentFacilitiesId
+      - location
+      - longitude
+      - nearby
+      - notes
+      - remarks
+      - renovationDescription
+      - reserve
+      - resortFeeAddAmount
+      - resortFeeAmount
+      - resortFeeTarget
+      - sightseeingPlanNotAvailable
+      - surroundingTouristInformation
+      - telephoneNumber
+      - transferPlan
+      - transferPlan2
+      - transferPlan3
+      - transferPlan4
+      - transferPlan5
+      - transferPlan6
+      - updatedDatetime
+      - zipCode
+      type: object
+      properties:
+        hotelId:
+          type: string
+          description: ホテルID
+          format: uuid
+        hotelNameEn:
+          maxLength: 200
+          minLength: 0
+          pattern: "(^[A-Za-z]+$)"
+          type: string
+          description: ホテル名(英語)
+        hotelName:
+          maxLength: 200
+          minLength: 0
+          type: string
+          description: ホテル名
+        cityCode:
+          maxLength: 3
+          minLength: 3
+          pattern: "(^[A-Za-z]+$)"
+          type: string
+          description: 都市
+        hotelCode:
+          maxLength: 80
+          minLength: 0
+          type: string
+          description: ホテルコード
+        contact:
+          maxLength: 20
+          minLength: 0
+          type: string
+          description: 連絡先
+        contact2:
+          maxLength: 20
+          minLength: 0
+          type: string
+          description: 連絡先2
+        grade:
+          maxLength: 1
+          minLength: 1
+          type: string
+          description: |-
+            グレード<br>
+            "S"：S<br>
+            "A"：A<br>
+            "B"：B<br>
+            "C"：C<br>
+            "D"：D
+        transferPlan:
+          maxLength: 200
+          minLength: 0
+          type: string
+          description: 送迎プラン
+        transferPlan2:
+          maxLength: 200
+          minLength: 0
+          type: string
+          description: 送迎プラン2
+        transferPlan3:
+          maxLength: 200
+          minLength: 0
+          type: string
+          description: 送迎プラン3
+        transferPlan4:
+          maxLength: 200
+          minLength: 0
+          type: string
+          description: 送迎プラン4
+        transferPlan5:
+          maxLength: 200
+          minLength: 0
+          type: string
+          description: 送迎プラン5
+        transferPlan6:
+          maxLength: 200
+          minLength: 0
+          type: string
+          description: 送迎プラン6
+        courseCode:
+          maxLength: 80
+          minLength: 0
+          type: string
+          description: コースコード
+        courseCode2:
+          maxLength: 80
+          minLength: 0
+          type: string
+          description: コースコード2
+        courseCode3:
+          maxLength: 80
+          minLength: 0
+          type: string
+          description: コースコード3
+        courseCode4:
+          maxLength: 80
+          minLength: 0
+          type: string
+          description: コースコード4
+        display:
+          maxLength: 1
+          minLength: 1
+          type: string
+          description: |-
+            表示<br>
+            "0"：OFF<br>
+            "1"：ON
+        displayOrder:
+          minimum: 0
+          type: integer
+          description: 表示順位
+          format: int32
+        sightseeingPlanNotAvailable:
+          minimum: 0
+          type: integer
+          description: 観光プラン不可
+          format: int32
+        syncHotelCodeJtos:
+          maxLength: 80
+          minLength: 0
+          type: string
+          description: 同期ホテルコード（JTOS）
+        syncHotelCodeAirTrip:
+          maxLength: 80
+          minLength: 0
+          type: string
+          description: 同期ホテルコード（エアトリ）
+        syncHotelCodeDerbySoft:
+          maxLength: 80
+          minLength: 0
+          type: string
+          description: 同期ホテルコード（DerbySoft）
+        paymentDerbysoft:
+          maxLength: 1
+          minLength: 1
+          type: string
+          description: |-
+            精算方法（Derbysoft）<br>
+            "1"：VCC<br>
+            "2"：INVOICE
+        telephoneNumber:
+          maxLength: 80
+          minLength: 0
+          type: string
+          description: 電話番号
+        faxNumber:
+          maxLength: 80
+          minLength: 0
+          type: string
+          description: FAX番号
+        zipCode:
+          maxLength: 20
+          minLength: 0
+          type: string
+          description: 郵便番号
+        addressEn:
+          maxLength: 200
+          minLength: 0
+          type: string
+          description: 住所(英語)
+        address:
+          maxLength: 200
+          minLength: 0
+          type: string
+          description: 住所
+        checkInTime:
+          maxLength: 20
+          minLength: 0
+          type: string
+          description: チェックイン時間
+        checkOutTime:
+          maxLength: 20
+          minLength: 0
+          type: string
+          description: チェックアウト時間
+        breakfast:
+          maxLength: 200
+          minLength: 0
+          type: string
+          description: 朝食
+        location:
+          maxLength: 200
+          minLength: 0
+          type: string
+          description: ロケーション
+        nearby:
+          maxLength: 200
+          minLength: 0
+          type: string
+          description: 最寄りの駅・空港名
+        accessInformation:
+          type: string
+          description: アクセス情報
+        surroundingTouristInformation:
+          type: string
+          description: 周辺観光情報
+        contactDescription:
+          type: string
+          description: 説明・営業日等
+        email:
+          maxLength: 200
+          minLength: 0
+          type: string
+          description: E-MAILアドレス
+          format: email
+        linkUrl:
+          maxLength: 200
+          minLength: 0
+          type: string
+          description: URL
+        latitude:
+          maxLength: 20
+          minLength: 0
+          type: string
+          description: 緯度
+        longitude:
+          maxLength: 20
+          minLength: 0
+          type: string
+          description: 経度
+        remarks:
+          type: string
+          description: 備考
+        hotelCaption:
+          maxLength: 200
+          minLength: 0
+          type: string
+          description: ホテル見出し
+        hotelOverview:
+          type: string
+          description: ホテル概要
+        renovationDescription:
+          type: string
+          description: 改装内容
+        listEquipmentFacilitiesId:
+          type: array
+          description: 設備・施設IDリスト
+          items:
+            type: string
+            description: 設備・施設IDリスト
+        resortFeeAmount:
+          minimum: 0
+          type: integer
+          description: リゾートフィー金額
+          format: int32
+        currency:
+          maxLength: 3
+          minLength: 3
+          type: string
+          description: 通貨コード
+        ageRequirement:
+          type: string
+          description: 年齢制限
+        depositGuide:
+          type: string
+          description: デポジット案内
+        reserve:
+          type: string
+          description: 予備(フリーフォーム)
+        resortFeeAddAmount:
+          type: integer
+          description: リゾートフィー他付加価値料金(フリーフォーム)
+          format: int32
+        hotelChain:
+          maxLength: 200
+          minLength: 0
+          type: string
+          description: ホテルチェーン
+        localHotelCode:
+          maxLength: 80
+          minLength: 0
+          type: string
+          description: 自社仕入れホテルコード
+        resortFeeTarget:
+          type: string
+          description: リゾートフィーに含まれるもの
+        localSupplier:
+          maxLength: 20
+          minLength: 0
+          type: string
+          description: 自社仕入れ仕入先
+        supplierCodeDerbySoft:
+          maxLength: 200
+          minLength: 0
+          type: string
+          description: サプライヤーコード（DerbySoft）
+        notes:
+          type: string
+          description: 注意事項
+        updatedDatetime:
+          type: string
+          description: 最終更新日時
+          format: date-time
+      description: ホテル情報更新リクエスト
+    BadRequestErrorDto:
+      required:
+      - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          description: フィールドエラーDto
+          items:
+            $ref: '#/components/schemas/FieldErrorDto'
+    FieldErrorDto:
+      type: object
+      properties:
+        field:
+          type: string
+          description: フィールド
+          example: birthDate
+        message:
+          type: string
+          description: エラーメッセージ
+          example: birthDateの形式はYYYY-MM-DDではありません。
+      description: フィールドエラーDto
+    HotelUpdateResponseDto:
+      required:
+      - result
+      - updatedDatetime
+      type: object
+      properties:
+        result:
+          $ref: '#/components/schemas/ResponseResult'
+        updatedDatetime:
+          type: string
+          description: 最終更新日時
+          format: date-time
+    ResponseResult:
+      required:
+      - status
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/ResponseType'
+        messageId:
+          type: string
+          description: エラー発生時のメッセージID
+          example: MSGE00001
+        message:
+          type: string
+          description: エラー発生時のメッセージ
+          example: GA011_プラン情報検索APIを呼時、エラーが発生しました。
+      description: IFの実行結果を設定する要素
+    ResponseType:
+      type: string
+      description: 処理結果
+      example: OK
+      enum:
+      - OK
+      - NG

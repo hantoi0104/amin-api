@@ -1,0 +1,140 @@
+# Gradle
+# Build your Java project and run tests with Gradle using a Gradle wrapper script.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+trigger:
+  branches:
+    include:
+      - master
+      - feature/*
+      - bugfix/*
+      - develop
+      - hotfix/*
+  paths:
+    include:
+      - admin-api/*
+    exclude:
+      - admin-api/README.md
+      - admin-api/.idea/*
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  isDevelop: $[eq(variables['Build.SourceBranch'], 'refs/heads/develop')]
+  GRADLE_USER_HOME: $(Pipeline.Workspace)/.gradle
+
+steps:
+#  - script: docker run -d --name maasdb -e POSTGRES_PASSWORD=$(PGPASSWORD) -p 5432:5432 postgres:13.8
+#    env:
+#      POSTGRES_PASSWORD: $(PGPASSWORD)
+#
+#  - script: sudo apt install gettext-base
+#  - bash: envsubst < admin-api/db/create_user.sql.template | psql -U postgres -h localhost postgres
+#    env:
+#      DB_PASSWORD: $(DB_PASSWORD)
+#      PGPASSWORD: $(PGPASSWORD)
+#  - bash: sh admin-api/db/createdb.sh
+#    env:
+#      PGPASSWORD: $(PGPASSWORD)
+#  - bash: sh admin-api/db/setupdb.sh
+#    env:
+#      PGPASSWORD: $(PGPASSWORD)
+#      PGCRYPTO_PASS: $(PGCRYPTO_PASS)
+#
+  - task: Cache@2
+    displayName: Configure gradle dependencies caching
+    inputs:
+      key: 'gradle | "$(Agent.OS)" | module-2 | admin-api | 20230219'
+      restoreKeys: |
+        gradle | "$(Agent.OS)" | module-2 | admin-api
+      path: $(GRADLE_USER_HOME)/caches/modules-2/
+
+  - task: Gradle@3
+    displayName: build admin-api
+    inputs:
+      tasks: 'build'
+      workingDirectory: 'admin-api'
+      gradleWrapperFile: 'admin-api/gradlew'
+      javaHomeOption: 'JDKVersion'
+      #gradleOptions: '-Xmx3072m'
+      jdkVersionOption: '1.17'
+      jdkArchitectureOption: 'x64'
+      #publishJUnitResults: true
+      #testResultsFiles: '**/TEST-*.xml'
+
+  - script: |
+      # stop the Gradle daemon to ensure no files are left open (impacting the save cache operation later)
+      $(System.DefaultWorkingDirectory)/admin-api/gradlew --stop
+    displayName: Gradlew stop
+
+  - task: Bash@3
+    displayName: Extract version string from jar
+    name: task1
+    inputs:
+      targetType: inline
+      script: |
+        #!/bin/bash
+        jarname=`ls $(System.DefaultWorkingDirectory)/admin-api/build/libs/* | grep -v "plain.jar" | xargs -i basename {}`
+        echo "\$jarname=$jarname"
+        echo "##vso[task.setvariable variable=jar;isOutput=true]$jarname"
+        if [[ $jarname =~ ([0-9]+\.[0-9]+\.[0-9]+)(-[^.]+)?\.jar$ ]]; then
+          prereleaseverlw="$(tr [A-Z] [a-z] <<< "${BASH_REMATCH[2]}")"
+          version=${BASH_REMATCH[1]}$prereleaseverlw
+          echo "\$version=$version"
+          echo "##vso[task.setvariable variable=ver;isOutput=true]$version"
+        fi
+
+  - task: UniversalPackages@0
+    displayName: 'Universal publish'
+    condition: eq(variables.isDevelop, true)
+    inputs:
+      command: publish
+      publishDirectory: $(System.DefaultWorkingDirectory)/admin-api/build/libs
+      vstsFeedPublish: 'c1154182-d51f-4b28-bb30-6dd72214b7f7/465da83c-c126-4aa8-9c7e-847607434ea7'
+      vstsFeedPackagePublish: admin-api
+      versionOption: 'custom'
+      versionPublish: $(task1.ver)
+      packagePublishDescription: $(task1.jar)
+
+  # Publish coverage report
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: 'jaCoCo'
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/admin-api/build/reports/jacoco/test/jacocoTestReport.xml'
+      reportDirectory: '$(System.DefaultWorkingDirectory)/admin-api/build/reports/jacoco/test/html'
+
+#  - task: PublishPipelineArtifact@1
+#    displayName: Publish JUnit Results
+#    inputs:
+#      targetPath: $(System.DefaultWorkingDirectory)/admin-api/build/reports/tests/test
+#      artifactName: JUnit-Results
+
+#  - task: Docker@2
+#    displayName: login ACR
+#    condition: eq(variables.isDevelop, true)
+#    inputs:
+#      containerRegistry: 'acrprodjapaneast01'
+#      command: login
+#
+#  - task: Docker@2
+#    displayName: 'Docker Build'
+#    condition: eq(variables.isDevelop, true)
+#    inputs:
+#      containerRegistry: 'acrprodjapaneast01'
+#      repository: 'maaspf/admin-api'
+#      command: 'build'
+#      buildContext: '$(Build.SourcesDirectory)/admin-api/'
+#      Dockerfile: '$(Build.SourcesDirectory)/admin-api/Dockerfile'
+#      arguments: '--build-arg JAR_FILE=./build/libs/$(task1.jar)'
+#      tags: '$(task1.ver)'
+#
+#  - task: Docker@2
+#    displayName: 'Docker Push'
+#    condition: eq(variables.isDevelop, true)
+#    inputs:
+#      containerRegistry: 'acrprodjapaneast01'
+#      repository: 'maaspf/admin-api'
+#      command: 'push'
+#      tags: '$(task1.ver)'
